@@ -1,0 +1,27 @@
+---
+title: "Variant Overlap"
+author: '`r Sys.info()[["user"]] `'
+date: '`r format(Sys.time(), "%B %d, %Y")`'
+output:
+  html_document:
+    css: styles.css
+    df_print: kable
+    keep_md: yes
+    number_sections: yes
+    toc: yes
+params:
+  foo: bar
+---
+```{r setup, include=FALSE}
+# This is the main parent report file, loads and compiles all child documents for the report
+library("ggplot2")
+library("knitr")
+library("DT")
+source("overlap.R")
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.height = 12)
+knitr::opts_chunk$set(fig.width = 12)
+# actual files to be read in
+foo <- params$foo
+cat(foo)
+```
