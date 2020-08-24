@@ -39,30 +39,23 @@ install: conda
 	r::r-ggplot2==3.1.1 \
 	r::r-knitr==1.22 \
 	r::r-dt==0.5 \
-	conda-forge::pandoc==2.10.1
+	conda-forge::pandoc==2.10.1 \
+	r::r-testthat==2.1.1
 
 
 bash:
 	bash
 
+INPUT_FILES:=analyst_file.old.maf analyst_file.new.maf
 run:
-	R --vanilla <<<'rmarkdown::render(input="report.Rmd", params=list(foo="baz"), output_format="html_document", output_file="report.html")'
+	R --vanilla <<<'input_files <- commandArgs()[3:length(commandArgs())]
+	rmarkdown::render(
+	input="report.Rmd",
+	params=list(input_files=input_files),
+	output_format="html_document",
+	output_file="report.html")
+	' \
+	$(INPUT_FILES)
 
-# R --vanilla <<<'print("foo")'
-# R --vanilla <<E0F
-# rmarkdown::render(
-#     input = "compare.Rmd",
-# params = list(
-#     old_unpaired_annot = "old.unpaired.annot.tsv",
-#     new_unpaired_annot = "new.unpaired.annot.tsv",
-#     old_paired_annot = "old.paired.annot.tsv",
-#     new_paired_annot = "new.paired.annot.tsv",
-#     old_unpaired_annot_path = "${old_unpaired_annot_path}",
-#     new_unpaired_annot_path = "${new_unpaired_annot_path}",
-#     old_paired_annot_path = "${old_paired_annot_path}",
-#     new_paired_annot_path = "${new_paired_annot_path}"
-# ),
-# output_format = "html_document",
-# output_file = "${html_output}"
-# )
-# E0F
+test:
+	./test_overlap.R

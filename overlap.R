@@ -130,6 +130,24 @@ aggregate_overlaps <- function(overlap_df, col_name = "VariantID"){
     return(overlap_aggr)
 }
 
+overlap_barplot <- function(overlap_aggr_df, plot_title = "Plot Title"){
+    # make a plot out of the aggregate_overlaps dataframe
+    p <- ggplot(data = overlap_aggr_df, 
+                aes(x = all, y = pcnt, fill = comb)) +
+        geom_bar(stat = "identity", position="stack") +
+        coord_flip() +
+        theme_bw() +
+        ggtitle(plot_title) +
+        theme(
+            panel.grid.minor.x = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.ticks = element_blank(),
+            axis.text.x = element_blank(),
+            axis.title.x = element_blank()
+        )
+    return(p)
+}
+
 # 
 # pdf(file = output_plot)
 # ggplot(data = overlap_aggr, aes(x = all, y = pcnt, fill = comb)) +

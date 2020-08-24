@@ -10,18 +10,92 @@ output:
     number_sections: yes
     toc: yes
 params:
-  foo: bar
+  input_files: 
+    - variants1.tsv
+    - variants2.tsv
+  id_colnames:
+    - Chromosome
+    - Start_Position
+    - End_Position
+    - Reference_Allele
+    - Tumor_Seq_Allele2
+    - Tumor_Sample_Barcode
+    - Matched_Norm_Sample_Barcode
 ---
 ```{r setup, include=FALSE}
-# This is the main parent report file, loads and compiles all child documents for the report
 library("ggplot2")
 library("knitr")
 library("DT")
 source("overlap.R")
+
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(fig.height = 12)
 knitr::opts_chunk$set(fig.width = 12)
-# actual files to be read in
-foo <- params$foo
-cat(foo)
+
+input_files <- params$input_files
+id_colnames <- params$id_colnames
+
+load_variants <- function(filename, id_colnames){
+  # load the variants from a tab-delimited file with headers
+  # need to load as colClasses = "character" because otherwise whitespace gets inserted later with paste
+  df <- read.delim(
+    file = filename, 
+    header = TRUE, 
+    sep = '\t', 
+    comment.char = '#',
+    check.names = FALSE, 
+    colClasses = "character")
+  
+  # add a unique label
+  df[["VariantID"]] <- apply(df[,id_colnames], MARGIN = 1, FUN = paste0, collapse = ':')
+  
+  return(df)
+}
+
+# load datasets
+input_list <- list()
+for(i in input_files){
+  input_list[[i]] <- load_variants(i, id_colnames)
+}
+
+# create variant lists
+variant_list <- list()
+for(name in names(input_list)){
+  variant_list[[name]] <- input_list[[name]][["VariantID"]]
+}
+
+# overlap the datasets
+overlaps <- create_overlaps(variant_list, col_name = "VariantID")
+
+# aggregate results metrics
+aggr_table <- aggregate_overlaps(overlaps)
+```
+
+# Input Files
+```{r, results='asis'}
+for(i in input_files){
+  cat(sprintf('\n- %s\n\n', i))
+}
+cat('Matching on columns:\n\n')
+cat(paste0(sprintf('- %s\n\n', id_colnames), collapse = ''))
+# input_list[[1]][["VariantID"]]
+```
+
+# Overlap
+
+## Metrics
+
+Overlap metrics
+
+```{r}
+aggr_table
+```
+
+```{r}
+overlap_barplot(aggr_table, plot_title = "Number of overlaps per combination")
+```
+
+
+```{r}
+save.image()
 ```
