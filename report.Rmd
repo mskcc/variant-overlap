@@ -65,7 +65,10 @@ for(name in names(input_list)){
 }
 
 # overlap the datasets
-overlaps <- create_overlaps(variant_list, col_name = "VariantID")
+overlaps <- create_overlaps(variant_list, 
+                            col_name = "VariantID", 
+                            overlap_prefix = '',
+                            comb_delim = '&')
 
 # aggregate results metrics
 aggr_table <- aggregate_overlaps(overlaps)
@@ -78,7 +81,6 @@ for(i in input_files){
 }
 cat('Matching on columns:\n\n')
 cat(paste0(sprintf('- %s\n\n', id_colnames), collapse = ''))
-# input_list[[1]][["VariantID"]]
 ```
 
 # Overlap

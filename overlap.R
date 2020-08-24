@@ -33,9 +33,12 @@ Setdiff <- function (x, y) {
     yy <- Union(y)
     setdiff(xx, yy)
 }
-# make a list of the variants for overlapping
 
-create_overlaps <- function(variant_list, col_name = "VariantID"){
+
+create_overlaps <- function(variant_list, 
+                            col_name = "VariantID", 
+                            overlap_prefix = 'overlap: ', comb_delim = '.'){
+    # make a list of the variants for overlapping
     # convert a list of character vectors into a dataframe of overlap combinations
     # variant_list <- list(tumor=tumor_df[['VariantID']],normal=normal_df[['VariantID']])
     
@@ -66,8 +69,8 @@ create_overlaps <- function(variant_list, col_name = "VariantID"){
     # generate some cleaner column names for the matrix
     new_names <- sapply(combs, function(x){
         if ( length(x) > 1){
-            name <- paste(x, collapse = '.')
-            label <- sprintf("overlap: %s", name)
+            name <- paste(x, collapse = comb_delim)
+            label <- sprintf("%s%s", overlap_prefix, name)
             return( label )
         } else{
             return(x)
@@ -108,8 +111,8 @@ aggregate_overlaps <- function(overlap_df, col_name = "VariantID"){
     # add dummy variable for aggregating
     overlap_df[["n"]] <- 1
     
-    # add dummy variable for plotting
-    overlap_df[["all"]] <- '.'
+    # # add dummy variable for plotting
+    # overlap_df[["all"]] <- '.'
     
     # get total number of variants
     total_num_unpaired_variants <- length(unique(as.character(overlap_df[[col_name]])))
@@ -126,11 +129,14 @@ aggregate_overlaps <- function(overlap_df, col_name = "VariantID"){
                               })
     names(overlap_pcnt) <- c("comb", "pcnt")
     overlap_aggr <- merge(overlap_aggr, overlap_pcnt)
-    overlap_aggr[["all"]] <- '.'
+    # overlap_aggr[["all"]] <- '.'
     return(overlap_aggr)
 }
 
 overlap_barplot <- function(overlap_aggr_df, plot_title = "Plot Title"){
+    # add dummy variable for plotting
+    overlap_aggr_df[["all"]] <- '.'
+    
     # make a plot out of the aggregate_overlaps dataframe
     p <- ggplot(data = overlap_aggr_df, 
                 aes(x = all, y = pcnt, fill = comb)) +
