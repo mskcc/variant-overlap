@@ -31,6 +31,8 @@ library("ggplot2")
 library("knitr")
 library("DT")
 source("overlap.R")
+# fixes issues with DT later in the document
+DT::datatable(matrix())
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(fig.height = 12)
@@ -78,13 +80,15 @@ overlaps <- create_overlaps(variant_list,
 # aggregate results metrics
 aggr_table <- aggregate_overlaps(overlaps)
 
-# save output files
+# subset the dataframes for the overlaps and save output files
+overlap_variant_tables <- list()
 # get the variants unique to each file; comb == name
 for(name in names(input_list)){
   output_filename <- sprintf("%s.uniq.tsv", name)
   output_path <- file.path(output_dir, output_filename)
   uniq_variantID_df <- overlaps[overlaps[["comb"]] == name ,]
   uniq_df <- merge(x = input_list[[name]], y = uniq_variantID_df, by = "VariantID")
+  overlap_variant_tables[[name]] <- uniq_df[, c(id_colnames, "VariantID")]
   write.table(x = uniq_df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
 }
 
@@ -102,6 +106,7 @@ for(name in unique(overlaps[["comb"]])){
             y[y[["VariantID"]] %in% common_variant_IDs, c(id_colnames, "VariantID")], 
             all = TRUE) # by = "VariantID",
       }, input_list)
+    overlap_variant_tables[[name]] <- df[, c(id_colnames, "VariantID")]
     write.table(x = df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
   }
 }
@@ -131,6 +136,28 @@ aggr_table
 overlap_barplot(aggr_table, plot_title = "Number of overlaps per combination")
 ```
 
+## Variants
+```{r, results='asis'}
+for(name in names(overlap_variant_tables)){
+  cat(sprintf("- %s\n\n", name))
+  
+  cat("\n\n")
+  cat(knitr::knit_print(DT::datatable(
+    overlap_variant_tables[[name]], 
+    # width = "100%",
+    options = list(
+      pageLength = nrow(overlap_variant_tables[[name]]),
+      scrollX = TRUE
+      ),
+    class = 'cell-border stripe'
+    )))
+  cat("\n\n")
+  # 
+  # DT::datatable(data = overlap_variant_tables[[name]],
+  #             # options = list(pageLength = nrow(reads_df)),
+  #             class = 'cell-border stripe')
+}
+```
 
 ```{r}
 save.image()

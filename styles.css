@@ -2,6 +2,11 @@
 .section-rule {
 color: lightgray;
 }
+.main-container {
+    margin-left: 0;
+    margin-right: auto;
+}
+
 
 /* color the active TOC element purple */
 /* .list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover { */
