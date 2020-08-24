@@ -47,15 +47,18 @@ bash:
 	bash
 
 INPUT_FILES:=analyst_file.old.maf analyst_file.new.maf
-run:
+OUTPUT_DIR:=output
+$(OUTPUT_DIR):
+	mkdir -p "$(OUTPUT_DIR)"
+run: $(OUTPUT_DIR)
 	R --vanilla <<<'input_files <- commandArgs()[3:length(commandArgs())]
 	rmarkdown::render(
 	input="report.Rmd",
-	params=list(input_files=input_files),
+	params=list(input_files=input_files, output_dir = "$(OUTPUT_DIR)"),
 	output_format="html_document",
 	output_file="report.html")
 	' \
 	$(INPUT_FILES)
-
+# html_output <- rmarkdown::html_document(mathjax=NULL)
 test:
 	./test_overlap.R

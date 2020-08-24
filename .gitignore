@@ -4,3 +4,4 @@ conda*
 .RData
 *.maf
 report_files/
+output/

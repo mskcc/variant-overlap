@@ -9,6 +9,9 @@ output:
     keep_md: yes
     number_sections: yes
     toc: yes
+    mathjax: null
+    # theme: null
+    # highlight: null
 params:
   input_files: 
     - variants1.tsv
@@ -21,6 +24,7 @@ params:
     - Tumor_Seq_Allele2
     - Tumor_Sample_Barcode
     - Matched_Norm_Sample_Barcode
+  output_dir: output
 ---
 ```{r setup, include=FALSE}
 library("ggplot2")
@@ -33,6 +37,7 @@ knitr::opts_chunk$set(fig.height = 12)
 knitr::opts_chunk$set(fig.width = 12)
 
 input_files <- params$input_files
+output_dir <- params$output_dir
 id_colnames <- params$id_colnames
 
 load_variants <- function(filename, id_colnames){
@@ -68,10 +73,39 @@ for(name in names(input_list)){
 overlaps <- create_overlaps(variant_list, 
                             col_name = "VariantID", 
                             overlap_prefix = '',
-                            comb_delim = '&')
+                            comb_delim = '_')
 
 # aggregate results metrics
 aggr_table <- aggregate_overlaps(overlaps)
+
+# save output files
+# get the variants unique to each file; comb == name
+for(name in names(input_list)){
+  output_filename <- sprintf("%s.uniq.tsv", name)
+  output_path <- file.path(output_dir, output_filename)
+  uniq_variantID_df <- overlaps[overlaps[["comb"]] == name ,]
+  uniq_df <- merge(x = input_list[[name]], y = uniq_variantID_df, by = "VariantID")
+  write.table(x = uniq_df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
+}
+
+# TODO: how to handle outputting the variants from the overlap combinations?
+# get the variants from all other combinations
+for(name in unique(overlaps[["comb"]])){
+  if(! name %in% names(input_list)){
+    print(name)
+    output_filename <- sprintf("%s.tsv", name)
+    output_path <- file.path(output_dir, output_filename)
+
+    common_variant_IDs <- overlaps[overlaps[["comb"]] == name, "VariantID"]
+    df <- Reduce(function(x, y){
+      merge(x[x[["VariantID"]] %in% common_variant_IDs, c(id_colnames, "VariantID")], 
+            y[y[["VariantID"]] %in% common_variant_IDs, c(id_colnames, "VariantID")], 
+            all = TRUE) # by = "VariantID",
+      }, input_list)
+    write.table(x = df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
+  }
+}
+
 ```
 
 # Input Files
