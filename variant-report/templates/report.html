@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="utf-8"/>
+    <title>Variant Report</title>
+</head>
+<body>
+    <div style="overflow-x:auto;">
+        <table style="width:100%">
+        <!-- table header -->
+            <tr>
+                {% for key in row_list[0] %}
+                <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        <!-- table rows -->
+        {% for row in row_list %}
+            <tr>
+                {% for value in row.values() %}
+                <td>{{value}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
