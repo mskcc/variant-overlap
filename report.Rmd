@@ -58,28 +58,38 @@ load_variants <- function(filename, id_colnames){
   
   return(df)
 }
+```
 
+```{r}
 # load datasets
 input_list <- list()
 for(i in input_files){
   input_list[[i]] <- load_variants(i, id_colnames)
 }
+```
 
+```{r}
 # create variant lists
 variant_list <- list()
 for(name in names(input_list)){
   variant_list[[name]] <- input_list[[name]][["VariantID"]]
 }
+```
 
+```{r}
 # overlap the datasets
 overlaps <- create_overlaps(variant_list, 
                             col_name = "VariantID", 
                             overlap_prefix = '',
                             comb_delim = '_')
+```
 
+```{r}
 # aggregate results metrics
 aggr_table <- aggregate_overlaps(overlaps)
+```
 
+```{r}
 # subset the dataframes for the overlaps and save output files
 overlap_variant_tables <- list()
 # get the variants unique to each file; comb == name
@@ -91,7 +101,9 @@ for(name in names(input_list)){
   overlap_variant_tables[[name]] <- uniq_df[, c(id_colnames, "VariantID")]
   write.table(x = uniq_df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
 }
+```
 
+```{r}
 # TODO: how to handle outputting the variants from the overlap combinations?
 # get the variants from all other combinations
 for(name in unique(overlaps[["comb"]])){
@@ -110,13 +122,12 @@ for(name in unique(overlaps[["comb"]])){
     write.table(x = df, file = output_path, quote = FALSE, sep = '\t', row.names = FALSE, col.names = TRUE)
   }
 }
-
 ```
 
 # Input Files
 ```{r, results='asis'}
 for(i in input_files){
-  cat(sprintf('\n- %s\n\n', i))
+  cat(sprintf('\n- `%s` (`%s`)\n\n', i, normalizePath(i)))
 }
 cat('Matching on columns:\n\n')
 cat(paste0(sprintf('- %s\n\n', id_colnames), collapse = ''))
