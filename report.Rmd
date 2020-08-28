@@ -152,10 +152,6 @@ for(name in names(overlap_variant_tables)){
     class = 'cell-border stripe'
     )))
   cat("\n\n")
-  # 
-  # DT::datatable(data = overlap_variant_tables[[name]],
-  #             # options = list(pageLength = nrow(reads_df)),
-  #             class = 'cell-border stripe')
 }
 ```
 
