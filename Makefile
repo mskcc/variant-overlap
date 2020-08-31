@@ -11,7 +11,6 @@ help:
 .PHONY : help
 
 # ~~~~~ Install Dependencies ~~~~~ #
-# need to use Python 2.7 because Python 3 gives different results
 export PATH:=$(CURDIR)/conda/bin:$(CURDIR)/bin:$(PATH)
 unexport PYTHONPATH
 unexport PYTHONHOME
