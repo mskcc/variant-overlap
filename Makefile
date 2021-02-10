@@ -39,13 +39,17 @@ install: conda
 	r::r-knitr==1.22 \
 	r::r-dt==0.5 \
 	conda-forge::pandoc==2.10.1 \
-	r::r-testthat==2.1.1
+	r::r-testthat==2.1.1 \
+	bioconda::bcftools==1.9 \
+	bioconda::vcf2maf==1.6.19
 
 
 bash:
 	bash
 
-INPUT_FILES:=analyst_file.old.maf analyst_file.new.maf
+OLD_MAF:=old.maf
+NEW_MAF:=new.maf
+INPUT_FILES:=$(OLD_MAF) $(NEW_MAF)
 OUTPUT_DIR:=output
 $(OUTPUT_DIR):
 	mkdir -p "$(OUTPUT_DIR)"
