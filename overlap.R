@@ -170,3 +170,20 @@ overlap_barplot <- function(overlap_aggr_df, plot_title = "Plot Title"){
 # dev.off()
 # 
 # save.image("final.Rdata")
+
+load_variants <- function(filename, id_colnames){
+    # load the variants from a tab-delimited file with headers
+    # need to load as colClasses = "character" because otherwise whitespace gets inserted later with paste
+    df <- read.delim(
+        file = filename, 
+        header = TRUE, 
+        sep = '\t', 
+        comment.char = '#',
+        check.names = FALSE, 
+        colClasses = "character")
+    
+    # add a unique label
+    df[["VariantID"]] <- apply(df[,id_colnames], MARGIN = 1, FUN = paste0, collapse = ':')
+    
+    return(df)
+}
