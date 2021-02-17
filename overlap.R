@@ -1,5 +1,6 @@
 #!/usr/bin/env Rscript
 # Module for overlap functions, used to overlap lists of variants
+library(data.table)
 
 ## Functions to get elements from Venndiagram object in R
 Intersect <- function (x) {
@@ -171,6 +172,35 @@ overlap_barplot <- function(overlap_aggr_df, plot_title = "Plot Title"){
 # 
 # save.image("final.Rdata")
 
+get_all_variants <- function(variant_IDs, df_list, merge_colnames = NULL, value_var = NULL){
+    # get all the variants with matching ID's from all dataframes in the list, merged into a single dataframe
+    
+    # if merge_colnames are passed, then use them for the merge product since the output colnames will all be identical
+    if(!is.null(merge_colnames)){
+        df <- Reduce(function(x, y){
+            merge(x[x[["VariantID"]] %in% variant_IDs, merge_colnames], 
+                  y[y[["VariantID"]] %in% variant_IDs, merge_colnames], 
+                  all = TRUE) # by = "VariantID",
+        }, df_list)
+    
+    # otherwise, do a merge but label the columns with the sample IDs from the input df_list
+    # requries value_vars to be passed
+    # https://stackoverflow.com/questions/46404066/get-element-number-of-list-while-iterating-through-it
+    } else {
+        all_data <- rbindlist(df_list, idcol = TRUE) # , idcol = 'df'
+        df <- dcast(all_data, VariantID ~ paste0(value_var,.id), 
+                    value.var = value_var, 
+                    subset = .(VariantID %in% variant_IDs))
+        df <- as.data.frame(df)
+    }
+    return(df)
+}
+
+add_variantID <- function(df, id_colnames, variantID_label = "VariantID"){
+    df[[variantID_label]] <- apply(df[,id_colnames], MARGIN = 1, FUN = paste0, collapse = ':')
+    return(df)
+}
+
 load_variants <- function(filename, id_colnames){
     # load the variants from a tab-delimited file with headers
     # need to load as colClasses = "character" because otherwise whitespace gets inserted later with paste
@@ -183,7 +213,7 @@ load_variants <- function(filename, id_colnames){
         colClasses = "character")
     
     # add a unique label
-    df[["VariantID"]] <- apply(df[,id_colnames], MARGIN = 1, FUN = paste0, collapse = ':')
+    df <- add_variantID(df, id_colnames)
     
     return(df)
 }

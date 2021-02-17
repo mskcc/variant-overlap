@@ -40,6 +40,7 @@ install: conda
 	r::r-dt==0.5 \
 	conda-forge::pandoc==2.10.1 \
 	r::r-testthat==2.1.1 \
+	r::r-data.table==1.12.2 \
 	conda-forge::r-devtools \
 	bioconda::bcftools==1.9 \
 	bioconda::vcf2maf==1.6.19 \
